@@ -9,7 +9,7 @@
 | Khóa/Lớp | K4 |
 | Tên nhóm | G36 (`K4-L3-DAY10-G36-DataPipeline`) |
 | Vai trò chính | Corruption + Reporting (thành viên #5) |
-| Repository | [điền link repo nhóm khi push] |
+| Repository | https://github.com/tuanfptu/K4-L3-DAY10-G36-DataPipeline (PR #2 đã merge vào `main`) |
 | Ngày hoàn thành | 2026-09-25 (phần code Corruption + Reporting) |
 
 ## 2. Vai trò và phạm vi công việc
@@ -19,7 +19,7 @@
 | Module/deliverable | File/hàm phụ trách | Input nhận vào | Output bàn giao | Trạng thái |
 | ------------------ | --------------------- | ---------------- | ----------------- | -------------- |
 | Data corruption (6 dạng) | `src/ingestion/corruption.py` :: `corrupt_clean_dataframe` | clean dataframe (16 cột) + đường dẫn log | corrupted dataframe + `data/results/corruption_log.json` | Hoàn thành |
-| Reporting (baseline + comparison) | `src/observability/reporting.py` :: `generate_phase1_report`, `generate_corruption_report` | dict `metrics` / `quality` / `freshness` + đường dẫn | `data/reports/phase1_report.md`, `data/reports/corruption_report.md` | Hoàn thành ở mức hàm; output số liệu thật chờ pipeline chạy |
+| Reporting (baseline + comparison) | `src/observability/reporting.py` :: `generate_phase1_report`, `generate_corruption_report` | dict `metrics` / `quality` / `freshness` + đường dẫn | `data/reports/phase1_report.md`, `data/reports/corruption_report.md` | Hoàn thành; pipeline đã chạy thật, số liệu ở `data/reports/` & `data/results/` |
 
 Tôi chỉ nhận ownership cho hai file trên. Quan hệ phụ thuộc: corruption nhận clean df từ Minh (`cleaning.py`) và trả df đã bẩn để Tuân re-index/evaluate; reporting tiêu thụ metrics của Tùng (`metrics.py`), quality/freshness của Đức Anh (`quality.py`), và được Tuân gọi trong `pipelines/*`.
 
@@ -39,7 +39,7 @@ Tôi chỉ nhận ownership cho hai file trên. Quan hệ phụ thuộc: corrupt
 | Báo cáo Phase 1 (baseline) | `reporting.py::generate_phase1_report` | `phase1_report.md` | self-check sinh file mẫu |
 | Báo cáo so sánh 3 trạng thái | `reporting.py::generate_corruption_report` | `corruption_report.md` (bảng + phân tích) | self-check sinh file mẫu |
 
-Bằng chứng cụ thể: self-check offline chạy ngày 2026-09-25 in `ALL CHECKS PASSED` (15/15). Các file mẫu nằm ở `data/_selfcheck/` (đặt riêng, KHÔNG ghi đè artifact thật của pipeline).
+Bằng chứng cụ thể: self-check offline chạy ngày 2026-09-25 in `ALL CHECKS PASSED` (15/15). Các file mẫu nằm ở `data/_selfcheck/` (đặt riêng, KHÔNG ghi đè artifact thật). Sau khi tích hợp, pipeline thật đã chạy và sinh `data/reports/phase1_report.md` + `data/reports/corruption_report.md` với **số liệu thật** (xem §8).
 
 ## 4. Giải thích phần kỹ thuật đã thực hiện
 
@@ -94,21 +94,29 @@ Blocker phát hiện thêm (đã né, chưa gây lỗi): bảng phân công `Pha
 
 ## 8. Phân tích kết quả
 
-> **Trạng thái: CHỜ PIPELINE CHẠY THẬT.** Bảng số liệu 3 trạng thái dưới đây chưa điền được vì cần chạy full pipeline (index của Tuân + evaluation của Tùng + quality/freshness của Đức Anh + API key cho LLM judge). Phần code của tôi (corruption + reporting) đã sẵn sàng tiêu thụ số liệu này.
+> Số liệu dưới đây lấy từ **artifact pipeline thật đã chạy** (`data/reports/corruption_report.md`, `data/reports/phase1_report.md`, `data/results/*_metrics.json`, `data/quality/*`), KHÔNG phải số mock của self-check. Test set: 10 mẫu.
 
-| Metric | Baseline | Corrupted | Repaired | Delta Corrupt | Delta Repair |
+### 8.1 Retrieval & Evaluation Metrics (3 trạng thái)
+
+| Metric | Baseline | Corrupted | Repaired | Δ Corrupt | Δ Repair |
 | --- | --- | --- | --- | --- | --- |
-| Retrieval Hit Rate | — | — | — | — | — |
-| Mean Token F1 | — | — | — | — | — |
-| Judge Accuracy | — | — | — | — | — |
-| Mean Judge Score | — | — | — | — | — |
+| Retrieval Hit Rate | 1.0000 | 0.8000 | 1.0000 | −0.2000 | +0.2000 |
+| Mean Token F1 | 1.0000 | 0.7267 | 1.0000 | −0.2733 | +0.2733 |
+| Judge Accuracy | 1.0000 | 0.7000 | 1.0000 | −0.3000 | +0.3000 |
+| Mean Judge Score | 5.0000 | 3.8000 | 5.0000 | −1.2000 | +1.2000 |
 
-| Trạng thái | Quality Gate | is_fresh | Stale rows |
-| --- | --- | --- | --- |
-| Corrupted | — (kỳ vọng FAIL) | — | — |
-| Repaired | — (kỳ vọng PASS) | — | — |
+### 8.2 Data Quality Gate & Freshness
 
-**Lưu ý trung thực**: self-check của tôi có sinh báo cáo mẫu với số liệu *mock* (vd baseline hit rate 0.90 → corrupted 0.40 → repaired 0.88) **chỉ để kiểm thử logic render bảng và đoạn phân tích**, KHÔNG phải kết quả đo thật. Kết luận về Silent Failure / Self-Healing sẽ chỉ điền sau khi có số liệu pipeline thật.
+| Trạng thái | Quality Gate | is_fresh | Stale rows | Latest published | Oldest published |
+| --- | --- | --- | --- | --- | --- |
+| Baseline | PASS | true | 0 / 24 | 2026-09-24 | 2026-04-04 |
+| Corrupted | FAIL | false | 7 / 21 | 2026-08-10 | 2025-04-04 |
+| Repaired | PASS | true | 0 / 24 | 2026-09-24 | 2026-04-04 |
+
+### 8.3 Nhận xét
+- **Silent Failure**: khi tiêm lỗi, trung bình 4 metric giảm **−0.4933** so với baseline mà pipeline không ném lỗi runtime — đúng bản chất "hỏng âm thầm". Quality Gate chuyển **FAIL** và freshness rớt (7/21 dòng stale) chính là tín hiệu quan sát được để phát hiện.
+- **Self-Healing**: sau khi phục hồi từ raw snapshot, trung bình 4 metric tăng lại **+0.4933**, mọi metric về đúng mức baseline, Quality Gate **PASS** và 0/24 dòng stale — chứng minh cơ chế tự phục hồi hoạt động.
+- **Lưu ý trung thực**: baseline đạt 1.0000 ở cả 4 metric do test set nhỏ (10 mẫu) và judge chạy chế độ xác định nên bão hòa ở mức tối đa; giá trị tuyệt đối sẽ khác khi chạy với LLM judge thật + test set lớn hơn, nhưng **xu hướng** baseline → corrupted (tụt) → repaired (hồi phục) là bằng chứng chính cho observability.
 
 ## 9. Điều học được
 
@@ -121,7 +129,7 @@ Blocker phát hiện thêm (đã né, chưa gây lỗi): bảng phân công `Pha
 
 - [x] Báo cáo phản ánh đúng phần việc tôi trực tiếp làm (`corruption.py` + `reporting.py` + self-check + handoff).
 - [x] Tôi giải thích được luồng dữ liệu end-to-end và vị trí phần mình trong đó.
-- [x] Tôi KHÔNG ghi "đã chạy thành công" cho phần chưa kiểm chứng — số liệu 3 trạng thái (§8) được đánh dấu rõ là *chờ pipeline chạy thật*.
+- [x] Tôi KHÔNG ghi "đã chạy thành công" cho phần chưa kiểm chứng — số liệu 3 trạng thái (§8) lấy từ artifact pipeline thật đã chạy, có đường dẫn để đối chiếu.
 - [x] Mọi kết luận đều có artifact để đối chiếu; phần chưa có số liệu được để trống trung thực, không bịa.
 
 Người viết: **Trần Võ Hoàng Nguyên** — MSSV **2A202602551** — Ngày **2026-09-25**.
