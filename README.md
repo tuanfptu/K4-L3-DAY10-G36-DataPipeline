@@ -1,5 +1,37 @@
 # Day 10 — Data Pipeline & Data Observability for RAG
 
+## Kết quả triển khai của nhóm G36
+
+Nhóm đã tích hợp pipeline RAG cho **24 bài báo Crossref về ADAS** từ snapshot `data/raw/crossref_response.json`. Hai lệnh chạy lần lượt tạo baseline, tiêm 6 dạng lỗi có kiểm soát, đánh giá dữ liệu lỗi và phục hồi từ raw. Demo là trang HTML/CSS/JavaScript tự chứa, không dùng Streamlit:
+
+- [Mở demo tương tác](demo/index.html) và [xem trang kiến trúc hệ thống](demo/architecture.html). Có thể mở trực tiếp hai file HTML, hoặc chạy `python -m http.server 8765 --directory demo` rồi vào `http://localhost:8765/`.
+- [Báo cáo nhóm](report/group_report.md), [báo cáo cá nhân của Tuân](report/2A202602982_HaManhTuan.md), [phân công và bằng chứng của 5 thành viên](docs/TEAM.md).
+
+### Chạy lại pipeline
+
+Yêu cầu Python 3.11–3.13. Cài dependency bằng `uv sync` hoặc `python -m pip install -e .` như hướng dẫn ở [mục 5](#5-thiết-lập-môi-trường--khởi-động-checkpoint-0). Từ thư mục gốc repo, chạy chế độ offline có thể lặp lại:
+
+```powershell
+$env:HF_HUB_OFFLINE = '1'
+$env:LLM_PROVIDER = 'mock'
+$env:JUDGE_MODE = 'heuristic'
+python script/run_phase1.py
+python script/run_corruption_flow.py
+python script/build_demo.py
+```
+
+Đầu ra chính nằm trong `data/results/`, `data/quality/`, `data/reports/` và `demo/`. Với snapshot ADAS, bộ 10 câu hỏi và cấu hình trên, lần chạy tích hợp ngày 25/09/2026 cho kết quả:
+
+| Trạng thái | Số bản ghi | Retrieval hit rate | Quality Gate | Freshness |
+|---|---:|---:|---|---|
+| Baseline | 24 | 1.000 | PASS | PASS |
+| Corrupted | 21 | 0.800 | FAIL | FAIL |
+| Repaired | 24 | 1.000 | PASS | PASS |
+
+Các số liệu này dùng Great Expectations 1.x, ChromaDB và mô hình embedding **`sentence-transformers/all-MiniLM-L6-v2` đã có trong cache offline**. Phần chấm câu trả lời dùng heuristic judge (`judge_llm_count = 0`); lượt chạy này bỏ qua Ragas. Xem JSON gốc tại [baseline](data/results/baseline_metrics.json), [corrupted](data/results/corrupted_metrics.json), [repaired](data/results/repaired_metrics.json), [manifest embedding](data/embeddings/papers_embeddings.json) và [log tiêm lỗi](data/results/corruption_log.json). ChromaDB được tạo lại ở `data/chroma/` khi chạy pipeline và không được lưu trong Git. Nếu máy khác không có MiniLM trong cache và vẫn đặt `HF_HUB_OFFLINE=1`, pipeline có thể dùng hashing fallback; cần kiểm tra trường `embedding_model` của manifest trước khi đối chiếu kết quả.
+
+---
+
 > **Hình thức thực hiện:** Làm việc theo nhóm (Teamwork)  
 > **Thời lượng:** 240 phút (4 giờ)  
 > **Thời hạn nộp bài:** 23:59:59 ngày diễn ra bài lab (hoặc theo thông báo trên LMS)  
@@ -92,23 +124,24 @@ timeline
 
 ---
 
-## 4. CẤU TRÚC MÃ NGUỒN STARTER REPO
+## 4. CẤU TRÚC MÃ NGUỒN REPO
 
-Starter Repo được cấu trúc dạng module hóa rõ ràng:
+Repo được cấu trúc dạng module hóa rõ ràng:
 
 ```text
 .
 ├── data/
-│   ├── raw/                 <- Chứa 2 file snapshot mẫu (crossref_response.json & records)
+│   ├── raw/                 <- Snapshot Crossref ADAS, DOI tuyển chọn và raw records
 │   ├── clean/               <- Nơi xuất dữ liệu đã làm sạch
-│   ├── chroma/              <- Database vector ChromaDB
+│   ├── chroma/              <- Database vector ChromaDB được tạo khi chạy (không commit)
 │   ├── eval/                <- File test set benchmark
 │   ├── quality/             <- Báo cáo Great Expectations và Freshness SLA
 │   ├── reports/             <- Báo cáo Markdown (phase1_report.md, corruption_report.md)
 │   └── results/             <- File JSON ghi nhận chỉ số (baseline, corrupted, repaired)
 ├── script/
 │   ├── run_phase1.py        <- Entrypoint chạy toàn bộ Baseline Pipeline (CP3)
-│   └── run_corruption_flow.py <- Entrypoint chạy Corruption, Repair & Comparison (CP4-CP5)
+│   ├── run_corruption_flow.py <- Entrypoint chạy Corruption, Repair & Comparison (CP4-CP5)
+│   └── build_demo.py        <- Đồng bộ artifact thực tế vào demo HTML
 ├── src/
 │   ├── core/                <- Cấu hình đường dẫn Paths, settings và utils
 │   ├── ingestion/           <- crossref.py (lấy data), cleaning.py (làm sạch), corruption.py (tiêm lỗi)
@@ -116,6 +149,9 @@ Starter Repo được cấu trúc dạng module hóa rõ ràng:
 │   ├── evaluation/          <- testset.py (sinh đề thi), metrics.py (tính Hit rate, F1)
 │   ├── observability/       <- quality.py (Great Expectations 1.x), reporting.py
 │   └── pipelines/           <- phase1.py (điều phối baseline), corruption_flow.py
+├── demo/                    <- Demo HTML tự chứa và trang kiến trúc hệ thống
+├── dashboard/               <- Dashboard quan sát do thành viên xây dựng
+├── report/                  <- Báo cáo nhóm và báo cáo cá nhân 5 thành viên
 ├── docs/                    <- Thư mục tài liệu hướng dẫn, quy chuẩn và rubric của bài lab
 │   ├── Guide.md             <- Hướng dẫn kỹ thuật chi tiết từng bước
 │   ├── CHECKPOINTS.md       <- Tiến trình & nhiệm vụ từng mốc thời gian
@@ -128,8 +164,7 @@ Starter Repo được cấu trúc dạng module hóa rõ ràng:
 └── pyproject.toml           <- Quản lý dependencies (Python 3.11-3.13)
 ```
 
-> ⚠️ **LƯU Ý VỀ CODE KHUNG:**  
-> Các file trong `src/` chứa các khối `TODO(student)` và `raise NotImplementedError`. Đây là bài tập thiết kế kỹ thuật, nhóm cần đọc kỹ docstring và hoàn thiện từng module theo thứ tự hướng dẫn trong [Guide.md](docs/Guide.md).
+> Các phần hướng dẫn bài lab bên dưới được giữ lại để tiện đối chiếu rubric. Trạng thái triển khai và số liệu thực tế của nhóm G36 được ghi ở đầu README và trong báo cáo nhóm.
 
 ---
 
@@ -196,11 +231,9 @@ GOOGLE_API_KEY=your_gemini_api_key_here
 
 ## 6. QUY TẮC PHỐI HỢP & CHECKLIST TRƯỚC KHI NỘP BÀI
 
-### 👥 Phân chia vai trò gợi ý (Nhóm 4 thành viên):
-- **Thành viên 1 (Pipeline Lead & Integrator):** Điều phối luồng, quản lý cấu hình `core/`, kết nối `phase1.py` và `corruption_flow.py`.
-- **Thành viên 2 (Data Foundation Owner):** Phụ trách thu thập `crossref.py`, làm sạch `cleaning.py` và khôi phục dữ liệu từ Raw.
-- **Thành viên 3 (RAG & Agent Specialist):** Quản lý Embedding MiniLM, ChromaDB vector store, logic truy vấn và QA Agent trong `retrieval/`.
-- **Thành viên 4 (Observability & Evaluation Lead):** Triển khai Great Expectations 1.x trong `quality.py`, Freshness SLA, bộ `testset.py` và sinh báo cáo Markdown đối chiếu.
+### 👥 Phân chia vai trò của nhóm G36 (5 thành viên)
+
+Xem [bảng phân công](docs/TEAM.md) để biết thành viên, MSSV, file phụ trách và báo cáo cá nhân tương ứng.
 
 ---
 

@@ -2,6 +2,11 @@ solution/
 .env
 lab.txt
 .venv/
+.deps/
+.uv-cache/
+data/_selfcheck/
+data/chroma/**
+!data/chroma/.gitkeep
 src/*.egg-info/
 lab/
 **/__pycache__/

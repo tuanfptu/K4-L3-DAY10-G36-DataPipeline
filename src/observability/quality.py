@@ -94,7 +94,9 @@ def run_data_quality_checks(df: pd.DataFrame, settings: Settings, report_name: s
     ]
 
     checks = [_result_payload(name, batch.validate(expectation)) for name, expectation in expectations]
-    freshness = build_freshness_report(df, settings, settings.paths.freshness_report)
+    freshness_path = (settings.paths.freshness_report if report_name == "baseline"
+                      else settings.paths.quality_dir / f"{report_name}_freshness_report.json")
+    freshness = build_freshness_report(df, settings, freshness_path)
     gx_success = all(check["success"] for check in checks)
 
     payload: dict[str, Any] = {

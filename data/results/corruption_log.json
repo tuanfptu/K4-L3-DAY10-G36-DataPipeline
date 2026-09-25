@@ -1,0 +1,101 @@
+{
+  "seed": 20260925,
+  "generated_at": "2026-09-25T10:11:44.836736+00:00",
+  "input_rows": 24,
+  "output_rows": 21,
+  "corruptions": [
+    {
+      "step": 1,
+      "type": "drop_latest_records",
+      "description": "Bo cac ban ghi published moi nhat de mo phong missing records.",
+      "params": {
+        "ratio": 0.2,
+        "dropped": 5
+      },
+      "affected_paper_ids": [
+        "10.3390/vehicles8100228",
+        "10.1177/09544070261484532",
+        "10.3390/vehicles8090203",
+        "10.1145/3787978",
+        "10.3390/vehicles8080188"
+      ],
+      "affected_count": 5
+    },
+    {
+      "step": 2,
+      "type": "blank_summary",
+      "description": "Xoa noi dung summary de mo phong empty abstract.",
+      "params": {
+        "rows": 3
+      },
+      "affected_paper_ids": [
+        "10.4271/12-09-04-0028",
+        "10.1177/03611981261436644",
+        "10.1145/3838726"
+      ],
+      "affected_count": 3
+    },
+    {
+      "step": 3,
+      "type": "inject_noise",
+      "description": "Chen chuoi ky tu rac vao summary.",
+      "params": {
+        "rows": 3,
+        "snippet": "###@@@ %%%$$$ <<lorem-noise>> zzqx \u00b6\u00a7 \ufffd"
+      },
+      "affected_paper_ids": [
+        "10.1145/3808153",
+        "10.3390/app16157622",
+        "10.3390/vehicles8040088"
+      ],
+      "affected_count": 3
+    },
+    {
+      "step": 4,
+      "type": "truncate_title",
+      "description": "Cat title con 5 ky tu (< 8) de vi pham do dai toi thieu.",
+      "params": {
+        "rows": 3,
+        "keep_chars": 5
+      },
+      "affected_paper_ids": [
+        "10.3390/vehicles8080185",
+        "10.1515/auto-2025-0066",
+        "10.3390/app16136722"
+      ],
+      "affected_count": 3
+    },
+    {
+      "step": 5,
+      "type": "stale_date",
+      "description": "Lui published 365 ngay va cong age_days de mo phong stale data.",
+      "params": {
+        "rows": 7,
+        "days": 365
+      },
+      "affected_paper_ids": [
+        "10.1002/smr.70112",
+        "10.4271/09-14-01-0018",
+        "10.1145/3806653",
+        "10.3390/make8050126",
+        "10.4271/12-09-04-0032",
+        "10.3390/vehicles8070155",
+        "10.1038/s41597-026-07929-2"
+      ],
+      "affected_count": 7
+    },
+    {
+      "step": 6,
+      "type": "duplicate_rows",
+      "description": "Nhan ban mot so dong de pha vo tinh duy nhat cua paper_id.",
+      "params": {
+        "rows": 2
+      },
+      "affected_paper_ids": [
+        "10.3390/s26113464",
+        "10.3390/app16136722"
+      ],
+      "affected_count": 2
+    }
+  ]
+}

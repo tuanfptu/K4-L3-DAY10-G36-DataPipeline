@@ -1,6 +1,6 @@
 {
-  "report_name": "baseline",
-  "generated_at": "2026-09-25T10:09:22.653462+00:00",
+  "report_name": "repaired",
+  "generated_at": "2026-09-25T10:11:58.698345+00:00",
   "success": true,
   "gx_success": true,
   "freshness_success": true,
@@ -68,7 +68,7 @@
     }
   ],
   "freshness": {
-    "generated_at": "2026-09-25T10:09:22.651814+00:00",
+    "generated_at": "2026-09-25T10:11:58.696577+00:00",
     "freshness_threshold_days": 180,
     "stale_ratio_limit": 0.25,
     "latest_published": "2026-09-24",
