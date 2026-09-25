@@ -1,0 +1,92 @@
+[
+  {
+    "id": "eval_001",
+    "question_type": "summary",
+    "question": "What is the summary of the paper 'RKGRScen: Road-Network Knowledge Graph Retrieval-Based Scenario Generation for Autonomous Driving Testing'?",
+    "ground_truth": "Simulation-based scenario testing is central to the safety validation of autonomous driving systems (ADS), where abstract scenarios must be instantiated into executable concrete scenarios.",
+    "ground_truth_doc_ids": [
+      "10.3390/vehicles8100228"
+    ]
+  },
+  {
+    "id": "eval_002",
+    "question_type": "authors",
+    "question": "Who authored the paper 'Discovering Safety Violations of Decision-Making in Autonomous Driving Systems from Accident-Free Traffic Scenarios'?",
+    "ground_truth": "Haoxiang Tian, Yuan Zhou, An Guo, Guoquan Wu, Mingfei Cheng, Wei Wang, Jun Wei, Tianwei Zhang, Xingshuo Han",
+    "ground_truth_doc_ids": [
+      "10.1145/3787978"
+    ]
+  },
+  {
+    "id": "eval_003",
+    "question_type": "date",
+    "question": "When was the paper 'Vehicle-Level Speed Stability and Driving Style Clustering in Motorcycle-Dominated Mixed Traffic Using Roadside Video Trajectories' published?",
+    "ground_truth": "2026-08-10",
+    "ground_truth_doc_ids": [
+      "10.3390/vehicles8080185"
+    ]
+  },
+  {
+    "id": "eval_004",
+    "question_type": "categories",
+    "question": "What categories does the paper 'An interactive enhanced driving dataset for autonomous driving' belong to?",
+    "ground_truth": "Traffic interactions, Perception, Data and knowledge",
+    "ground_truth_doc_ids": [
+      "10.1038/s41597-026-07929-2"
+    ]
+  },
+  {
+    "id": "eval_005",
+    "question_type": "summary",
+    "question": "What is the summary of the paper 'A Framework for Precautionary Safety for Automated Driving Systems\u2014Toward Tactical Decisions Fulfilling Quantitative Risk Acceptance Criteria'?",
+    "ground_truth": "Safety of Automated Driving Systems (ADSs) is arguably one of the main remaining barriers before widespread market deployment.",
+    "ground_truth_doc_ids": [
+      "10.4271/12-09-04-0028"
+    ]
+  },
+  {
+    "id": "eval_006",
+    "question_type": "authors",
+    "question": "Who authored the paper 'From Particles to Perils: SVGD-Based Hazardous Scenario Generation for Autonomous Driving Systems Testing'?",
+    "ground_truth": "Linfeng Liang, Xiao Cheng, Tsong Yueh Chen, Xi Zheng",
+    "ground_truth_doc_ids": [
+      "10.1145/3808153"
+    ]
+  },
+  {
+    "id": "eval_007",
+    "question_type": "date",
+    "question": "When was the paper 'Scenario-Driven Synthetic Data Generation Framework for Visual Perception Evaluation Under Adverse Driving Conditions' published?",
+    "ground_truth": "2026-05-30",
+    "ground_truth_doc_ids": [
+      "10.3390/s26113464"
+    ]
+  },
+  {
+    "id": "eval_008",
+    "question_type": "categories",
+    "question": "What categories does the paper 'Feature Reduction for Scenario-Based Safety Assessment of Automated Driving Systems' belong to?",
+    "ground_truth": "Scenario-based testing, Simulation and validation, Safety-critical cases, Data and knowledge",
+    "ground_truth_doc_ids": [
+      "10.4271/09-14-01-0018"
+    ]
+  },
+  {
+    "id": "eval_009",
+    "question_type": "summary",
+    "question": "What is the summary of the paper 'Analyzing the Sensitivity of a Scenario Selection Process for Simulation\u2010Based Safety Testing'?",
+    "ground_truth": "ABSTRACT Automated driving systems (ADS) require exhaustive safety testing.",
+    "ground_truth_doc_ids": [
+      "10.1002/smr.70112"
+    ]
+  },
+  {
+    "id": "eval_010",
+    "question_type": "authors",
+    "question": "Who authored the paper 'Generative AI for Testing of Autonomous Driving Systems: A Survey'?",
+    "ground_truth": "Qunying Song, He Ye, Mark Harman, Federica Sarro",
+    "ground_truth_doc_ids": [
+      "10.1145/3806653"
+    ]
+  }
+]

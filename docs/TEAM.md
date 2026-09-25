@@ -29,7 +29,7 @@ Thông tin bên dưới chờ từng thành viên tự điền sau khi làm ph�
 |---|---|---|---|---|
 | Tuân |  |  |  |  |
 | Minh | Ninh Quang Minh | 2A202602432 | minhnq.chc@gmail.com | `report/2A202602432_NinhQuangMinh.md` |
-| Tùng |  |  |  |  |
+| Tùng | Đỗ Thanh Tùng | 2A202602845 | thanhtung.30082020@gmail.com | `report/2A202602845_DoThanhTung.md` |
 | Đức Anh |  |  |  |  |
 | Nguyên |  |  |  |  |
 
@@ -43,9 +43,12 @@ Thông tin bên dưới chờ từng thành viên tự điền sau khi làm ph�
 - Kết quả kỹ thuật đã kiểm: 24 DOI ADAS → 24 `PaperRecord` → 24 dòng clean, DOI duy nhất; lệnh kiểm Bước 2 in `Đã tải 24 bài báo`.
 - Bằng chứng và giới hạn: `data/raw/adas_selected_dois.json`, `data/raw/crossref_response.json`, `data/raw/crossref_records.json`, `data/clean/papers_clean.csv`, `data/clean/papers_clean.json`; chi tiết trong `report/2A202602432_NinhQuangMinh.md`. Minh cần tự xác nhận phần giải thích, kết quả tích hợp và commit trước khi nộp.
 
-## Tùng-[MSSV]
+## DoThanhTung-2A202602845
 
-- Công việc đã hoàn thành và bằng chứng: _chưa tự khai_.
+- Vai trò: RAG + Evaluation — `src/evaluation/testset.py`, `src/evaluation/metrics.py`, kiểm tra `src/retrieval/index.py` và `src/retrieval/qa.py`.
+- Đã hoàn thành: `build_test_set` sinh 10 câu hỏi cố định (3 summary, 3 authors, 2 date, 2 categories) vào `data/eval/test_set.json`, chạy lại cho cùng md5; thêm `load_or_build_test_set` để ba trạng thái dùng chung một bộ đề; sửa judge trong `metrics.py` để không âm thầm rơi về heuristic khi hết quota (ghi `judge_llm_count` / `judge_fallback_count`, hỗ trợ `JUDGE_MODE=heuristic`); `index.py` ép metadata về chuỗi để Chroma nhận được dữ liệu corrupted có `None`/`NaN`; 7 test pytest trong `tests/test_evaluation.py`.
+- Bằng chứng: lệnh Bước 5 in `Sinh được 10 câu hỏi test`; `pytest tests/test_evaluation.py` → `7 passed`; lượt chấm thử baseline bằng module (ngoài pipeline chính thức) cho hit rate 1.0, token F1 1.0, judge accuracy 1.0 với 10/10 câu chấm bởi `gemini-3.5-flash-lite`. Chi tiết trong `report/2A202602845_DoThanhTung.md`.
+- Chưa xong: metrics corrupted/repaired chính thức chờ `corruption.py` (Nguyên) và `corruption_flow.py` / `phase1.py` (Tuân).
 
 ## Đức Anh-[MSSV]
 

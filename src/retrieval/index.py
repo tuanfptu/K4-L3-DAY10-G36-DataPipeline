@@ -42,24 +42,25 @@ class LocalEmbeddingIndex:
 
     @staticmethod
     def _build_documents(df: pd.DataFrame) -> list[dict[str, Any]]:
-        records = df.to_dict(orient="records")
+        # Chroma chi nhan metadata str/int/float/bool; corrupted data co the chua None/NaN.
+        records = df.astype(object).where(df.notna(), "").to_dict(orient="records")
         documents: list[dict[str, Any]] = []
         for index, row in enumerate(records):
             documents.append(
                 {
                     "record_id": f"{row['paper_id']}::{index}",
-                    "paper_id": row["paper_id"],
-                    "title": row["title"],
-                    "content": row["text_for_embedding"],
+                    "paper_id": str(row["paper_id"]),
+                    "title": str(row["title"]),
+                    "content": str(row["text_for_embedding"]),
                     "metadata": {
-                        "paper_id": row["paper_id"],
-                        "title": row["title"],
-                        "published": row["published"],
-                        "authors_joined": row["authors_joined"],
-                        "categories_joined": row["categories_joined"],
-                        "summary": row["summary"],
-                        "abs_url": row["abs_url"],
-                        "pdf_url": row["pdf_url"],
+                        "paper_id": str(row["paper_id"]),
+                        "title": str(row["title"]),
+                        "published": str(row["published"]),
+                        "authors_joined": str(row["authors_joined"]),
+                        "categories_joined": str(row["categories_joined"]),
+                        "summary": str(row["summary"]),
+                        "abs_url": str(row["abs_url"]),
+                        "pdf_url": str(row["pdf_url"]),
                     },
                 }
             )

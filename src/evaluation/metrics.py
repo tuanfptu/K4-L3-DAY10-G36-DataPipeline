@@ -45,7 +45,30 @@ def _token_f1(reference: str, prediction: str) -> float:
     return 2 * precision * recall / (precision + recall)
 
 
-def _judge_answer(settings: Settings, question: str, reference: str, prediction: str) -> JudgeVerdict:
+def _build_judge_llm(settings: Settings):
+    """Tao judge LLM mot lan cho moi luot evaluate; None nghia la dung heuristic."""
+    if os.getenv("JUDGE_MODE", "").lower() == "heuristic":
+        return None
+    try:
+        return build_llm(settings=settings, temperature=0.0).with_structured_output(JudgeVerdict)
+    except Exception:
+        return None
+
+
+def _heuristic_verdict(reference: str, prediction: str, reason: str) -> JudgeVerdict:
+    f1 = _token_f1(reference, prediction)
+    score = 5 if f1 >= 0.95 else 3 if f1 >= 0.5 else 1
+    return JudgeVerdict(
+        score=score,
+        correct=score >= 3,
+        reasoning=f"Fallback heuristic judge used because {reason}.",
+    )
+
+
+def _judge_answer(judge_llm, question: str, reference: str, prediction: str) -> tuple[JudgeVerdict, str]:
+    """Tra ve (verdict, source) voi source la "llm" hoac "heuristic"."""
+    if judge_llm is None:
+        return _heuristic_verdict(reference, prediction, "the LLM evaluator was disabled or unavailable"), "heuristic"
     prompt = f"""
 Evaluate the model answer against the reference answer.
 
@@ -59,15 +82,10 @@ Return:
 - short reasoning
 """.strip()
     try:
-        llm = build_llm(settings=settings, temperature=0.0).with_structured_output(JudgeVerdict)
-        return llm.invoke(prompt)
-    except Exception:
-        score = 5 if _token_f1(reference, prediction) >= 0.95 else 3 if _token_f1(reference, prediction) >= 0.5 else 1
-        return JudgeVerdict(
-            score=score,
-            correct=score >= 3,
-            reasoning="Fallback heuristic judge used because the LLM evaluator was unavailable.",
-        )
+        return judge_llm.invoke(prompt), "llm"
+    except Exception as exc:
+        # Chi ghi ten loai loi de khong lo secret/URL trong artifact.
+        return _heuristic_verdict(reference, prediction, f"the LLM evaluator failed ({type(exc).__name__})"), "heuristic"
 
 
 def _run_ragas(settings: Settings, answers: list[dict[str, Any]]) -> dict[str, Any]:
@@ -109,10 +127,14 @@ def evaluate_pipeline(
 ) -> EvaluationBundle:
     test_set = read_json(test_set_path)
     answers: list[dict[str, Any]] = []
+    judge_llm = _build_judge_llm(settings)
 
     for item in test_set:
         result = answer_question(item["question"], settings=settings, index=index)
-        judge = _judge_answer(settings, item["question"], item["ground_truth"], result.answer)
+        judge, judge_source = _judge_answer(judge_llm, item["question"], item["ground_truth"], result.answer)
+        if judge_source == "heuristic":
+            # Het quota/loi mang: ngung goi LLM cho cac cau con lai thay vi cho retry tung cau.
+            judge_llm = None
         retrieval_hit = any(doc_id in item["ground_truth_doc_ids"] for doc_id in result.retrieved_doc_ids)
         answers.append(
             {
@@ -127,6 +149,7 @@ def evaluate_pipeline(
                 "retrieval_hit": retrieval_hit,
                 "token_f1": _token_f1(item["ground_truth"], result.answer),
                 "judge": judge.model_dump(),
+                "judge_source": judge_source,
             }
         )
 
@@ -136,6 +159,9 @@ def evaluate_pipeline(
         "mean_token_f1": mean(item["token_f1"] for item in answers),
         "judge_accuracy": mean(1.0 if item["judge"]["correct"] else 0.0 for item in answers),
         "mean_judge_score": mean(item["judge"]["score"] for item in answers),
+        # Cho biet judge metrics den tu LLM that hay heuristic de report khong ghi nham.
+        "judge_llm_count": sum(1 for item in answers if item["judge_source"] == "llm"),
+        "judge_fallback_count": sum(1 for item in answers if item["judge_source"] == "heuristic"),
     }
     summary["ragas"] = _run_ragas(settings, answers)
 
