@@ -239,21 +239,23 @@ Xem [bảng phân công](docs/TEAM.md) để biết thành viên, MSSV, file ph�
 
 ### 📋 Checklist Nghiệm thu & Điều kiện nộp bài (Checkpoint 6):
 
-- [ ] **Môi trường:** Chạy lệnh smoke test in ra `Môi trường sẵn sàng`.
-- [ ] **Pha 1 (Baseline):** Lệnh `python script/run_phase1.py` chạy trơn tru, sinh đầy đủ:
+Đối chiếu ngày **25/09/2026** trên commit tích hợp `8a3bef1`. Mục VLearn dựa trên xác nhận của trưởng nhóm rằng cả 5 thành viên đã tự nộp.
+
+- [x] **Môi trường:** Smoke test import `chromadb`, `great_expectations`, `sentence_transformers` đã in `Môi trường sẵn sàng` (exit 0) bằng Python runtime đã cấu hình, bổ sung `.deps` vào `sys.path` và `PYTHONIOENCODING=utf-8`. Lệnh `python` trần chưa có trong PATH của máy kiểm chứng.
+- [x] **Pha 1 (Baseline):** `script/run_phase1.py` chạy thành công, tạo 24 bản ghi sạch, quality PASS, hit rate 1.000 và sinh đầy đủ:
   - `data/clean/papers_clean.csv`
   - `data/eval/test_set.json`
   - `data/results/baseline_metrics.json`
   - `data/reports/phase1_report.md`
-- [ ] **Pha 2 (Corruption & Repair):** Lệnh `python script/run_corruption_flow.py` chạy thành công, tạo ra:
+- [x] **Pha 2 (Corruption & Repair):** `script/run_corruption_flow.py` chạy thành công, hit rate 1.000 → 0.800 → 1.000 và tạo ra:
   - `data/results/corruption_log.json` (ghi nhận 6 dạng lỗi)
   - `data/results/corrupted_metrics.json` (chứng minh chỉ số giảm sút)
   - `data/results/repaired_metrics.json` (chứng minh chỉ số phục hồi)
   - `data/reports/corruption_report.md` (bảng đối chiếu 3 trạng thái rõ ràng)
-- [ ] **Data Observability (GX 1.x):** Quality Gate sử dụng cú pháp chuẩn GX 1.x (`gx.get_context()`, `add_pandas()`), phát hiện thành công khi data bị inject lỗi.
-- [ ] **Bảo mật:** Không commit file `.env` hoặc API Key cá nhân lên GitHub.
-- [ ] **Kiểm tra Contributor trên GitHub:** 
+- [x] **Data Observability (GX 1.x):** `quality.py` dùng `gx.get_context(mode="ephemeral")` và `add_pandas()`; report ghi 6/6 → 4/6 → 6/6 expectations đạt, freshness PASS → FAIL → PASS.
+- [x] **Bảo mật:** `.env` bị Git ignore và không có trong danh sách file tracked; commit tích hợp đã qua rà soát mẫu credential.
+- [x] **Kiểm tra Contributor trên GitHub:** API Contributors trên `main` trả về đủ 5 tài khoản nhóm: `tuanfptu`, `minhnq-chc`, `tungne1311`, `phamducanh552004`, `nguyenhihi123q` ([xem trên GitHub](https://github.com/tuanfptu/K4-L3-DAY10-G36-DataPipeline/graphs/contributors)).
   > ⚠️ **QUY TẮC ĐIỂM DANH GITHUB:**  
-  > GitHub chỉ ghi nhận đóng góp khi commit được push trực tiếp vào **nhánh mặc định (`main`)**.  
+  > GitHub ghi nhận commit của thành viên khi commit đã được đưa vào **nhánh mặc định (`main`)**, kể cả qua pull request.
   > Trước khi nộp bài, mở trình duyệt vào repo nhóm, chọn tab **Insights > Contributors**. Bắt buộc mọi thành viên trong nhóm đều phải xuất hiện trên biểu đồ commit thì mới được tính điểm chuyên cần nhóm!
-- [ ] **Nộp bài lên VLearn LMS:** Mỗi thành viên copy đường link repository GitHub của nhóm và nộp lên cổng LMS trước khi đồng hồ đếm ngược kết thúc 240 phút!
+- [x] **Nộp bài lên VLearn LMS:** Trưởng nhóm xác nhận ngày 25/09/2026 rằng cả 5 thành viên đã tự nộp link repository. Việc nộp LMS là xác nhận của nhóm, không có biên nhận LMS trong repository.
